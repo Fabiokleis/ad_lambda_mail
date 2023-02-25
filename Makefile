@@ -6,7 +6,7 @@ CONTAINER_NAME=lambda_mail
 
 build:
 	@echo "buildando imagem ${IMG}"
-	@docker build . -t "${IMG}"
+	@docker buildx build . -t "${IMG}"
 
 up:
 	@echo "subindo container"
@@ -15,7 +15,7 @@ up:
 
 test:
 	@echo "testando lambda function"
-	@curl -s -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}' | jq 
+	@curl -s -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}' | jq . 
 
 clean:
 	@echo "limpando o ambiente: container -> ${CONTAINER_NAME} e image -> ${IMG}"

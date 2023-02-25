@@ -46,6 +46,19 @@ make test
 ```console
 make clean
 ```
+
+# Testando codigo com ward
+Crie um virtualenv e instale o requirements-dev.txt
+
+dentro do diretorio tests existe um teste `test_ad_lambda_mail.py`
+```console
+pip install -r requirements-dev.txt
+```
+Para testar as funcoes [ward](https://github.com/darrenburns/ward)
+```console
+ward
+```
+
 # Como criar e mandar imagem da lambda function para aws ecr
 refs: https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html
 
