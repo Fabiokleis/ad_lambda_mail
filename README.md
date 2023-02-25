@@ -9,7 +9,7 @@ BASE_DN='DC=EXEMPLO,DC=LOCAL'
 BIND_DN='administrator@exemplo.local'
 AUTH_PASS='senha-do-administrator'
 SMTP_ADDR='ip do servidor smtp'
-HOST_NAME='nomedoservidor'
+HOST_NAME='nomedoservidor smtp'
 SMTP_USER='pingutester' # sasl username
 SMTP_AUTH_PASS='123' # sasl user passwd
 MAX_AGE=42 # idade maxima de senha
