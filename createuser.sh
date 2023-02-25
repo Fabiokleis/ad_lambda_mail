@@ -14,6 +14,7 @@ objectClass: top
 objectClass: person
 objectClass: organizationalPerson
 objectClass: user
+objectClass: inetOrgPerson
 sAMAccountName: Pingu${i}
 givenName: Pingu${i}
 userPrincipalName: Pingu${i}
