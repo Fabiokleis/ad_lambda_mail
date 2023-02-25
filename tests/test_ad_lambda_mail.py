@@ -6,9 +6,14 @@ from ad_lambda_mail.user import User
 
 config = dotenv_values('.env')
 
-#@test("test ldap search on local ad server")
-#def search_test():
-#    assert search_expired_password(config, 0) == {}
+@test("test ldap search on local ad server")
+def search_test():
+    assert search_expired_password(
+            config,
+            int(config['MAX_AGE']),
+            int(config['DAYS_RANGE'])
+    ) == {}
+
 @test("test send mail to smtp local server")
 def send_mail_test():
     assert send_mail(config, User(cn="urameshi surname", name="urameshi", sn='surname', mail="urameshi@etv4-mint0x86-64", host="etv4-mint0x86-64")) == {}
