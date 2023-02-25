@@ -4,10 +4,16 @@ Active Directory lambda function para mandar emails para conta de usuarios com s
 # Configuracao
 .env
 ```.env
-AD_SERVER='ip do servidor'
+AD_SERVER='ip do servidor active directory'
 BASE_DN='DC=EXEMPLO,DC=LOCAL'
 BIND_DN='administrator@exemplo.local'
 AUTH_PASS='senha-do-administrator'
+SMTP_ADDR='ip do servidor smtp'
+HOST_NAME='nomedoservidor'
+SMTP_USER='pingutester' # sasl username
+SMTP_AUTH_PASS='123' # sasl user passwd
+MAX_AGE=42 # idade maxima de senha
+DAYS_RANGE=7 # usuarios com até um numero x dias para expirar a senha receberao email
 ```
 
 # Docker image
