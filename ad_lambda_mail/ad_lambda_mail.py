@@ -3,15 +3,20 @@ from ldap3 import Server, Connection, ALL
 
 import logging
 import json
+from datetime import datetime, timedelta
+
+
 from dotenv import dotenv_values
 
 from .user import parse_entry
 from .send_smtp import send_mail
+from .filetime import from_datetime 
 
 config = dotenv_values('.env')
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+
 
 def create_user(attr):
     cn = attr['attributes']['cn']
@@ -20,14 +25,19 @@ def create_user(attr):
     return parse_entry({ "cn": cn, "mail": mail, "dn": dn })
 
 
-def search_expired_password(config, tempo):
+
+def search_expired_password(config, dias, range_de_dias):
     """ 
     Procura por todos os usuarios com senha expirada ou até um número de dias estipulado!
     '
     (&
+        (objectCategory=Person)
+        (objectClass=inetOrgPerson)
         (objectclass=User)
-        (pwdLastSet<=tempo)
-        (!(cn=guest))
+        (|
+            (pwdLastSet<=(hoje - dias - range_de_dias))
+            (pwdLastSet=0)
+        )
     )
     '
     """
@@ -42,9 +52,12 @@ def search_expired_password(config, tempo):
             auto_bind=True
             )
     conn.start_tls()
-    tempo_nano_sec = 0
-    s_filter = f'(&(objectclass=User)(pwdLastSet<={tempo_nano_sec})(!(cn=guest)))'
-    attribs = ['cn', 'mail']
+
+    # (hoje - dias) = senha mais velha possivel = max_age
+    # (max_age - range_de_dias) = senha faltando pouco tempo para expirar = expiration_range
+    tempo_nano_sec = from_datetime(datetime.now() - timedelta(days=dias) - timedelta(days=range_de_dias))
+    s_filter = f'(&(objectCategory=Person)(objectClass=inetOrgPerson)(objectclass=User)(|(pwdLastSet<={tempo_nano_sec})(pwdLastSet=0)))'
+    attribs = ['cn', 'mail', 'pwdlastset']
 
     status = conn.search(config['BASE_DN'], search_filter=s_filter, attributes=attribs)
     json_response = conn.response_to_json()
@@ -59,18 +72,30 @@ def search_expired_password(config, tempo):
 
 def lambda_handler(event, context):
     logger.info('called lambda handler')
-    result = search_expired_password(config, 0)
+
+    # default: max_age = 47 dias, range = 7 dias
+    result = search_expired_password(
+            config, 
+            int(config['MAX_AGE']),
+            int(config['DAYS_RANGE'])
+    ) 
     status = result['status']
     entries = result['entries']
     if not status:
-        return {
-                'status': False,
-                'event': event,
-                'context': context
+        result = {
+            'status': status,
+            'event': event,
+            'context': context
         }
+        logger.error(f'result: {result}')
+        return result
     else:
         for entry in entries:
             send_mail(config, entry)
-        #return {'status': status, 'entries': entries}
-        
-    
+            logger.info(f"send mail: from {config['SMTP_USER']}@{config['HOST_NAME']} to {entry.mail}")
+
+        entries_parsed = []
+        for entry in entries:
+            entries_parsed.append(entry.to_json())
+
+        return {'status': status, 'entries': entries_parsed}
