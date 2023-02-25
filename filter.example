@@ -1,4 +1,4 @@
 # filtro:
 # objectclass == User E pwdLastSet == 0 E cn != guest
 # procura dentro do OU=User por usuarios expirados e exclui o guest
-ldapsearch -LLL -H ldaps://192.168.0.213 -D administrator@rts.local -w Mypasswd@123 -b dc=rts,dc=local '(&(objectclass=User)(pwdLastSet=0)(!(cn=guest)))'
+ldapsearch -LLL -H ldaps://192.168.0.213 -D administrator@rts.local -w Mypasswd@123 -b dc=rts,dc=local '(&(objectCategory=Person)(objectClass=inetOrgPerson)(objectClass=User)(pwdLastSet=0))'
